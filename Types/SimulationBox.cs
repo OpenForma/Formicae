@@ -55,7 +55,6 @@ namespace Formicae.Types
 
         #endregion
 
-
         #region constructors 
 
         /// <summary>
@@ -81,8 +80,6 @@ namespace Formicae.Types
         #endregion
 
         #region IGH_Goo
-
-
 
         public IGH_Goo Duplicate()
         {
@@ -117,9 +114,6 @@ namespace Formicae.Types
         public bool Read(GH_IReader reader)
         {
             throw new NotImplementedException();
-
-
-
 
         }
 
@@ -292,6 +286,8 @@ namespace Formicae.Types
 
         #endregion
 
+        #region Methods
+
         public override string ToString()
         {
             return $"A {TypeName} with a simulation grid of size {this.SimulationGridDistance} * {this.SimulationGridDistance} of resolution {this.SimulationGridResolution} (Distance between points)" +
@@ -329,5 +325,7 @@ namespace Formicae.Types
             plane.Origin = GetTopCenterPoint();
             return plane;
         }
+
+        #endregion
     }
 }
