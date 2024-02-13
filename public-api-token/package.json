@@ -1,0 +1,14 @@
+{
+  "name": "forma-api-example",
+  "module": "index.ts",
+  "type": "module",
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "open": "^10.0.3"
+  }
+}
