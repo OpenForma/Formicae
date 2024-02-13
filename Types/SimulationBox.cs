@@ -9,6 +9,8 @@ using Grasshopper.Kernel;
 using Grasshopper.Kernel.Types;
 using GH_IO.Serialization;
 using Rhino;
+using System.Runtime.InteropServices.WindowsRuntime;
+using Formicae.Helpers;
 
 
 
@@ -43,6 +45,10 @@ namespace Formicae.Types
         public bool IsGeometryLoaded => throw new NotImplementedException();
 
         public BoundingBox ClippingBox => BoundingBoxBrep?.GetBoundingBox(false) ?? BoundingBox.Unset;
+
+        public double ResultGridDistance = 200;
+
+        public double SimulationGridDistance = 500; 
 
         #endregion
 
@@ -184,11 +190,11 @@ namespace Formicae.Types
         /// Get an oriented plane at the lowest point of the bounding box 
         /// </summary>
         /// <returns></returns>
-        public Plane  GetGridPlane()
+        public Plane  GetGridPlaneForBotLeftCorner()
         {
             var Brepvertices = this.BoundingBoxBrep.Vertices;
             var BrepPts = Brepvertices.Select(a => a.Location).ToList();
-            var  LowestX = Brepvertices.Select(a => a.Location).Select(b=>b.X).Min();
+            var LowestX = Brepvertices.Select(a => a.Location).Select(b => b.X).Min();
             var LowestY = Brepvertices.Select(a => a.Location).Select(b => b.Y).Min();
             var LowestZ = Brepvertices.Select(a => a.Location).Select(b => b.Z).Min();
             var MaxX = Brepvertices.Select(a => a.Location).Select(b => b.X).Max();
@@ -196,9 +202,9 @@ namespace Formicae.Types
 
             Point3d Pa = new Point3d();
             Point3d Pb = new Point3d();
-            Point3d Pc = new Point3d(); 
+            Point3d Pc = new Point3d();
 
-            foreach ( var pt in BrepPts) 
+            foreach (var pt in BrepPts)
             {
                 if (pt.X == LowestX && pt.Y == LowestY && pt.Z == LowestZ)
                 {
@@ -206,20 +212,66 @@ namespace Formicae.Types
                 }
                 if (pt.X == MaxX && pt.Y == LowestY && pt.Z == LowestZ)
                 {
-                    Pb = pt;    
+                    Pb = pt;
                 }
                 if (pt.X == LowestX && pt.Y == MaxY && pt.Z == LowestZ)
                 {
-                    Pc = pt;    
+                    Pc = pt;
                 }
             }
 
             Vector3d u = Pb - Pa;
+            u.Unitize();
             Vector3d v = Pc - Pa;
+            v.Unitize();
             Point3d origin = Pa;
 
             Plane plane = new Plane(origin, u, v);
             return plane;
+
+        }
+
+
+        /// <summary>
+        /// Get the result plane to generate the grid for the result grid
+        /// </summary>
+        /// <returns></returns>
+        public Plane GetResultPlane()
+        {
+            var botleftcorner = GetGridPlaneForBotLeftCorner();
+            double leftoverspace = (this.SimulationGridDistance - this.ResultGridDistance) / 2;
+            botleftcorner.Translate(botleftcorner.XAxis * leftoverspace);
+            botleftcorner.Translate(botleftcorner.YAxis * leftoverspace);
+            return botleftcorner; 
+        }
+
+        /// <summary>
+        /// Gets the simulation Plane to generate the simulaiton grid
+        /// </summary>
+        /// <returns></returns>
+        public Plane GetSimulationPlane()
+        {
+            var botleftcorner = GetGridPlaneForBotLeftCorner();
+            botleftcorner.Translate(botleftcorner.YAxis * this.SimulationGridDistance);
+            return botleftcorner;
+        }
+
+        /// <summary>
+        /// Gets the grid for the result to be colored
+        /// </summary>
+        /// <returns></returns>
+        public Mesh GetResultMeshGrid () 
+        {
+           return MeshHelper.GetGridMeshForResult(GetResultPlane(), this.ResultGridDistance);
+        }
+
+        /// <summary>
+        /// Get the grid for the simulation to calcualte height maps
+        /// </summary>
+        /// <returns></returns>
+        public Mesh GetSimulationMesh()
+        {
+            return MeshHelper.GetGridMeshForSimulation(GetSimulationPlane(), this.SimulationGridDistance);
         }
     }
 }
