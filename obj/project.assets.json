@@ -90,19 +90,24 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\mm1039\\.nuget\\packages\\": {}
+    "C:\\Users\\Arze\\.nuget\\packages\\": {},
+    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\mm1039\\Documents\\Mikael\\FormaFun\\Formicae\\Formicae\\Formicae.csproj",
+      "projectUniqueName": "C:\\Users\\Arze\\Documents\\GitHub\\Formicae\\Formicae.csproj",
       "projectName": "Formicae",
-      "projectPath": "C:\\Users\\mm1039\\Documents\\Mikael\\FormaFun\\Formicae\\Formicae\\Formicae.csproj",
-      "packagesPath": "C:\\Users\\mm1039\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\mm1039\\Documents\\Mikael\\FormaFun\\Formicae\\Formicae\\obj\\",
+      "projectPath": "C:\\Users\\Arze\\Documents\\GitHub\\Formicae\\Formicae.csproj",
+      "packagesPath": "C:\\Users\\Arze\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\Arze\\Documents\\GitHub\\Formicae\\obj\\",
       "projectStyle": "PackageReference",
+      "fallbackFolders": [
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+      ],
       "configFilePaths": [
-        "C:\\Users\\mm1039\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\Arze\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
@@ -110,6 +115,7 @@
       ],
       "sources": {
         "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+        "C:\\Program Files\\dotnet\\library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {

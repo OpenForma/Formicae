@@ -15,7 +15,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyDescriptionAttribute("Description of Formicae")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0+7ba5845d68c66ba3a59d9fc2b40ecd9234400ba5")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0+b56c35c56aa519d89628e55e251a5d72dbd12d76")]
 [assembly: System.Reflection.AssemblyProductAttribute("Formicae")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Formicae")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
