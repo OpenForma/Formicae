@@ -12,6 +12,7 @@ using Rhino;
 
 
 
+
 namespace Formicae.Types
 {
     /// <summary>
@@ -179,5 +180,46 @@ namespace Formicae.Types
         }
 
 
+        /// <summary>
+        /// Get an oriented plane at the lowest point of the bounding box 
+        /// </summary>
+        /// <returns></returns>
+        public Plane  GetGridPlane()
+        {
+            var Brepvertices = this.BoundingBoxBrep.Vertices;
+            var BrepPts = Brepvertices.Select(a => a.Location).ToList();
+            var  LowestX = Brepvertices.Select(a => a.Location).Select(b=>b.X).Min();
+            var LowestY = Brepvertices.Select(a => a.Location).Select(b => b.Y).Min();
+            var LowestZ = Brepvertices.Select(a => a.Location).Select(b => b.Z).Min();
+            var MaxX = Brepvertices.Select(a => a.Location).Select(b => b.X).Max();
+            var MaxY = Brepvertices.Select(a => a.Location).Select(b => b.Y).Max();
+
+            Point3d Pa = new Point3d();
+            Point3d Pb = new Point3d();
+            Point3d Pc = new Point3d(); 
+
+            foreach ( var pt in BrepPts) 
+            {
+                if (pt.X == LowestX && pt.Y == LowestY && pt.Z == LowestZ)
+                {
+                    Pa = pt;
+                }
+                if (pt.X == MaxX && pt.Y == LowestY && pt.Z == LowestZ)
+                {
+                    Pb = pt;    
+                }
+                if (pt.X == LowestX && pt.Y == MaxY && pt.Z == LowestZ)
+                {
+                    Pc = pt;    
+                }
+            }
+
+            Vector3d u = Pb - Pa;
+            Vector3d v = Pc - Pa;
+            Point3d origin = Pa;
+
+            Plane plane = new Plane(origin, u, v);
+            return plane;
+        }
     }
 }
