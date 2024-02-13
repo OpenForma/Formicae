@@ -79,8 +79,10 @@ namespace Formicae.Helpers
             return m;
         }
 
+        [Obsolete]
         public static Mesh GetGridMeshForSimulation(Plane OriginPlane, double GridtTotalDistance)
         {
+            //Too slow 
             Mesh resultGrid = new Mesh();
 
             for (int i = 0; i < GridtTotalDistance; i++)
@@ -99,6 +101,40 @@ namespace Formicae.Helpers
                 }
             }
             return resultGrid; 
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="OriginPlane"></param>
+        /// <param name="GridtTotalDistance"></param>
+        /// <param name="gridResolution"></param>
+        /// <returns></returns>
+        public static List<Point3d> GetGridPointsForSimulation(Plane OriginPlane, double GridtTotalDistance , double gridResolution)
+        {
+            var pts = new List<Point3d>();
+
+            for (int i = 0; i < GridtTotalDistance; i++)
+            {
+
+                //Create plane in Y direction
+                Plane offsetedPlane = OriginPlane;
+                offsetedPlane.Translate(OriginPlane.YAxis * -i);
+                Point3d pointToOffset = offsetedPlane.Origin - OriginPlane.YAxis * gridResolution / 2;
+                //Create plane in Y direction
+                //Point3d pointToOffset = OriginPlane.Origin - (OriginPlane.YAxis) * gridResolution / 2*i;
+
+                for (int j = 0; j < GridtTotalDistance; j++)
+                {
+                    //Translate in X direction
+                    Point3d tempPt = new Point3d(pointToOffset) + (OriginPlane.XAxis) * gridResolution / 2; // move the point to the right 
+                    tempPt = tempPt + OriginPlane.XAxis * gridResolution * j; // move the point with the array 
+                    //Point3d tempPt = new Point3d(pointToOffset) + OriginPlane.XAxis * gridResolution * j ;
+                    pts.Add(tempPt);
+                }
+            }
+
+            return pts;
         }
     }
 }

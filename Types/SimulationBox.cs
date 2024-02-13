@@ -28,7 +28,7 @@ namespace Formicae.Types
         public Brep BoundingBoxBrep { get; set; }
 
 
-        public bool IsValid => throw new NotImplementedException();
+        public bool IsValid => this.IsABox();
 
         public string IsValidWhyNot => throw new NotImplementedException();
 
@@ -40,18 +40,20 @@ namespace Formicae.Types
 
         public Guid ReferenceID { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
-        public bool IsReferencedGeometry => throw new NotImplementedException();
+        public bool IsReferencedGeometry => this.BoundingBoxBrep != null;
 
-        public bool IsGeometryLoaded => throw new NotImplementedException();
+        public bool IsGeometryLoaded => this.BoundingBoxBrep != null;
 
         public BoundingBox ClippingBox => BoundingBoxBrep?.GetBoundingBox(false) ?? BoundingBox.Unset;
 
         public double ResultGridDistance = 200;
 
-        public double SimulationGridDistance = 500; 
+        public double SimulationGridDistance = 500;
+
+        public double SimulationGridResolution = 1;
+
 
         #endregion
-
 
         #region constructors 
 
@@ -78,8 +80,6 @@ namespace Formicae.Types
         #endregion
 
         #region IGH_Goo
-
-
 
         public IGH_Goo Duplicate()
         {
@@ -114,9 +114,6 @@ namespace Formicae.Types
         public bool Read(GH_IReader reader)
         {
             throw new NotImplementedException();
-
-
-
 
         }
 
@@ -166,15 +163,21 @@ namespace Formicae.Types
 
         public void DrawViewportWires(GH_PreviewWireArgs args)
         {
-            throw new NotImplementedException();
+            args.Pipeline.DrawDottedPolyline(GetResultMeshOutline(), System.Drawing.Color.Magenta,true);
+            args.Pipeline.Draw3dText("Interest Area", System.Drawing.Color.Black, this.GetTopCenterPlane(), 3, "Arial");
+
         }
 
         public void DrawViewportMeshes(GH_PreviewMeshArgs args)
         {
-            throw new NotImplementedException();
+            // throw new NotImplementedException();
+            args.Pipeline.DrawDottedPolyline(GetResultMeshOutline(), System.Drawing.Color.Magenta, true);
+            args.Pipeline.Draw3dText("Interest Area", System.Drawing.Color.Black, this.GetTopCenterPlane(), 3, "Arial");
         }
 
         #endregion
+
+        #region Simulation grid
 
         /// <summary>
         /// Checks if the brep is a box based on the number of points 
@@ -265,13 +268,64 @@ namespace Formicae.Types
            return MeshHelper.GetGridMeshForResult(GetResultPlane(), this.ResultGridDistance);
         }
 
+        [Obsolete]
         /// <summary>
-        /// Get the grid for the simulation to calcualte height maps
+        /// TOO SLOW!! Get the grid for the simulation to calcualte height maps
         /// </summary>
         /// <returns></returns>
         public Mesh GetSimulationMesh()
         {
             return MeshHelper.GetGridMeshForSimulation(GetSimulationPlane(), this.SimulationGridDistance);
         }
+
+
+        public List<Point3d> GetSimulationPoints()
+        {
+           return MeshHelper.GetGridPointsForSimulation(GetSimulationPlane(),this.SimulationGridDistance, this.SimulationGridResolution);
+        }
+
+        #endregion
+
+        #region Methods
+
+        public override string ToString()
+        {
+            return $"A {TypeName} with a simulation grid of size {this.SimulationGridDistance} * {this.SimulationGridDistance} of resolution {this.SimulationGridResolution} (Distance between points)" +
+                $"\nAt the center of which an interest area grid (resultGrid) of size {this.ResultGridDistance} * {this.ResultGridDistance} of resolution {this.SimulationGridResolution} ";
+        }
+
+        /// <summary>
+        /// Gets the center point in the middle of the top Surface
+        /// </summary>
+        /// <returns></returns>
+        public Point3d GetTopCenterPoint()
+        {
+           return this.BoundingBox.GetCorners()[4] + this.BoundingBox.GetCorners()[7] / 2;
+        }
+
+        /// <summary>
+        /// Gets the result mesh outline for Viz
+        /// </summary>
+        /// <returns></returns>
+        public Polyline GetResultMeshOutline()
+        {
+            var plane = GetGridPlaneForBotLeftCorner();
+            plane.Origin = GetTopCenterPoint();
+            Rectangle3d rect = new Rectangle3d(plane, this.ResultGridDistance, this.ResultGridDistance);
+            return rect.ToPolyline();
+        }
+
+        /// <summary>
+        /// Gets a plane in the center of the top surface 
+        /// </summary>
+        /// <returns></returns>
+        public Plane GetTopCenterPlane()
+        {
+            var plane = GetGridPlaneForBotLeftCorner();
+            plane.Origin = GetTopCenterPoint();
+            return plane;
+        }
+
+        #endregion
     }
 }

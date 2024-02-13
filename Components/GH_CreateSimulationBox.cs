@@ -31,8 +31,10 @@ namespace Formicae.Components
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
-            pManager.AddMeshParameter("SimulaitonMeshGrid", "SMG", "A grid to simulate on", GH_ParamAccess.item);
+            // pManager.AddMeshParameter("SimulaitonMeshGrid", "SMG", "A grid to simulate on", GH_ParamAccess.item);
+            pManager.AddPointParameter("SimulationPoints", "Simpts", "A grid of points to get the height maps", GH_ParamAccess.list);
             pManager.AddMeshParameter("ResultMeshGrid", "RMG", "A grid to viz the results",GH_ParamAccess.item);
+            pManager.AddGenericParameter("SimulationBox", "simBox", "Simulation box object", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -45,11 +47,13 @@ namespace Formicae.Components
             DA.GetData(0, ref box);
 
             SimulationBox simbox = new SimulationBox(box);
-            var simMesh = simbox.GetSimulationMesh();
+            //var simMesh = simbox.GetSimulationMesh();
+            var simPts = simbox.GetSimulationPoints();
             var ResultMesh = simbox.GetResultMeshGrid();
 
-            DA.SetData(0, simMesh);
+            DA.SetDataList(0, simPts);
             DA.SetData(1, ResultMesh);
+            DA.SetData(2, simbox);
 
         }
 
