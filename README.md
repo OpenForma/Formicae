@@ -21,6 +21,12 @@ Before you begin with Fomicae, there are a couple of requirements to ensure a sm
 
 Please ensure these prerequisites are met to fully leverage Fomicae's functionalities.
 
+
+## Loading Extension
+
+You can use Formicae extension id: "b8b53625-9454-4330-8cee-893098f21803" to add it to your project.
+
+
 ## Contribution
 
 Fomicae is an open-source project, and we welcome contributions from the community. Whether you're a developer, a designer, or an architect, your insights and improvements can help shape the future of Fomicae. We aim to set up a robust guidlines for this as soon as possible.
