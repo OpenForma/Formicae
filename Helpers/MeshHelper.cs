@@ -44,7 +44,7 @@ namespace Formicae.Helpers
         /// </summary>
         /// <param name="originPlane">Result Plane</param>
         /// <param name="gridTotalDistance"> 200 X 200 300 X 300 Grid etc.. </param>
-        public static Mesh GetGridMeshForResult(Plane originPlane, double gridTotalDistance)
+        public static Mesh GetGridMeshForResult(Plane originPlane, double gridTotalDistance , double gridresolution)
         {
             Mesh resultGrid = new Mesh();
             for (int i = 0; i < gridTotalDistance; i++)
@@ -71,8 +71,8 @@ namespace Formicae.Helpers
         /// <param name="plane">Top left corner</param>
         /// <returns></returns>
         public static Mesh GetPlaneForMeshSimulation(Plane plane) 
-        {            // 1 meter
-            double offset = 1;
+        {  
+            double offset = 1.5;
             Mesh m = new Mesh();
             m.Vertices.Add(plane.Origin);
             m.Vertices.Add(plane.Origin - plane.YAxis * offset);
@@ -138,6 +138,37 @@ namespace Formicae.Helpers
             }
 
             return pts;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="OriginPlane"></param>
+        /// <param name="GridtTotalDistance"></param>
+        /// <param name="gridResolution"></param>
+        /// <returns></returns>
+        public static Mesh GetResultMeshRowMajor(Plane OriginPlane, double GridFaceCount, double gridResolution)
+        {
+            Mesh mesh = new Mesh();
+            for (int i = 0; i < GridFaceCount; i++)
+            {
+
+                //Create plane in Y direction
+                Plane offsetedPlane = OriginPlane;
+                offsetedPlane.Translate(OriginPlane.YAxis * -i * gridResolution);
+                Mesh OffsetMeshinY = GetPlaneForMeshSimulation(offsetedPlane);
+
+
+                for (int j = 0; j < GridFaceCount; j++)
+                {
+                    //Translate in X direction
+                    Mesh tempMesh = OffsetMeshinY.DuplicateMesh();
+                    tempMesh.Translate(OriginPlane.XAxis * j * gridResolution);
+                    mesh.Append(tempMesh);  
+                }
+            }
+
+            return mesh;
         }
 
         public static List<Point3d> ProjectPointsDownardOnMesh(IEnumerable<Point3d> pts, Mesh mesh)

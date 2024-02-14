@@ -54,7 +54,9 @@ namespace Formicae.Types
 
         public double BoxHeight => GetBoxHeight();
 
-        public double SimulationGridDistance = 750; 
+        public double SimulationGridDistance = 750;
+
+        public double ResultGridDistance = 300;
 
         /// <summary>
         /// Points that can be used to calculate height always heigher than the Simulation Box Brep
@@ -261,9 +263,9 @@ namespace Formicae.Types
         public Plane GetResultPlane()
         {
             var botleftcorner = GetGridPlaneForBotLeftCorner();
-            double leftoverspace = (this.SimulationGridFaceCount - this.ResultMeshFaceCount) / 2;
-            botleftcorner.Translate(botleftcorner.XAxis * leftoverspace);
-            botleftcorner.Translate(botleftcorner.YAxis * leftoverspace);
+           //double leftoverspace = (this.SimulationGridFaceCount - this.ResultGridDistance) / 2;
+            botleftcorner.Translate(botleftcorner.XAxis * 225);
+            botleftcorner.Translate(botleftcorner.YAxis * 525);
             return botleftcorner; 
         }
 
@@ -278,13 +280,24 @@ namespace Formicae.Types
             return botleftcorner;
         }
 
+        ///// <summary>
+        ///// Gets the grid for the result to be colored
+        ///// </summary>
+        ///// <returns></returns>
+        //public Mesh GetResultMeshGrid () 
+        //{
+        //   return MeshHelper.GetGridMeshForResult(GetResultPlane(), this.ResultGridDistance,1.5);
+        //}
+
+
+
         /// <summary>
         /// Gets the grid for the result to be colored
         /// </summary>
         /// <returns></returns>
-        public Mesh GetResultMeshGrid () 
+        public Mesh GetResultMeshGrid()
         {
-           return MeshHelper.GetGridMeshForResult(GetResultPlane(), this.ResultMeshFaceCount);
+            return MeshHelper.GetResultMeshRowMajor(GetResultPlane(), this.ResultMeshFaceCount, this.SimulationGridResolution); //Same resolution
         }
 
         [Obsolete]
@@ -298,10 +311,14 @@ namespace Formicae.Types
         }
 
 
+      
+
         public List<Point3d> GetSimulationPoints()
         {
            return MeshHelper.GetGridPointsForSimulation(GetSimulationPlane(),this.SimulationGridFaceCount, this.SimulationGridResolution);
         }
+
+
 
         #endregion
 

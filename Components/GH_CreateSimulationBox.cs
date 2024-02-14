@@ -52,9 +52,9 @@ namespace Formicae.Components
             //var ResultMesh = simbox.GetResultMeshGrid();
 
             var simPts = simbox.LiftedPts;
-            //var ResultMesh = simbox.LiftedResultMesh;
+            var ResultMesh = simbox.LiftedResultMesh;
             DA.SetDataList(0, simPts);
-            //DA.SetData(1, ResultMesh);
+            DA.SetData(1, ResultMesh);
             //DA.SetData(2, simbox);
 
         }
