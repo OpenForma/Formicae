@@ -12,6 +12,8 @@ namespace Formicae.Types
     {
         public Brep buildingBreps;
 
+        public List<Brep> buildings; 
+
         public Buildings() { }
         
         public Mesh previewMesh => GetBuildingsPreviewMesh();
@@ -24,21 +26,31 @@ namespace Formicae.Types
         public Buildings(List<Brep>breps)
         {
             Brep brep = new Brep();
-            foreach(var b in breps) 
-            {
-                brep.Append(b);
-            }
-            buildingBreps = brep;
+            //foreach(var b in breps) 
+            //{
+            //    brep.Append(b);
+            //}
+            //buildingBreps = brep;
+
+            this.buildings = breps; 
         }
 
         public Mesh GetBuildingsPreviewMesh() 
         {
+            //Mesh mesh = new Mesh();
+            //Mesh[] meshes = Mesh.CreateFromBrep(this.buildingBreps, MeshingParameters.FastRenderMesh);
+            //foreach (var m in meshes)
+            //{
+            //    mesh.Append(m);
+            //}
+            //return mesh;
+
             Mesh mesh = new Mesh();
-            Mesh[] meshes = Mesh.CreateFromBrep(this.buildingBreps, MeshingParameters.FastRenderMesh);
-            foreach (var m in meshes)
+            foreach ( var bldg in buildings ) 
             {
-                mesh.Append(m);
+                mesh.Append(Mesh.CreateFromBrep(bldg, MeshingParameters.FastRenderMesh));
             }
+
             return mesh;
         }
         
