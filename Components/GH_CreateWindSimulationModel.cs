@@ -26,6 +26,7 @@ namespace Formicae.Components
             pManager.AddMeshParameter("TerrainMesh", "TM", "Mesh used to represent the terrain", GH_ParamAccess.item);
             pManager.AddBrepParameter("Buildings Breps", "BB", "Buildings as Breps (Kepp at volumetric level and simple boxes)", GH_ParamAccess.list);
             pManager.AddGenericParameter("Simulation Box", "SimBox", "Simulation Box Object", GH_ParamAccess.item);
+           
         }
 
         /// <summary>
@@ -34,6 +35,7 @@ namespace Formicae.Components
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
             pManager.AddGenericParameter("WindSimModel", "WindSimModel", "WindSimModel",GH_ParamAccess.item);
+           // pManager.AddGenericParameter("Debug", "Debug", "Debug", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -56,6 +58,7 @@ namespace Formicae.Components
             WindSimulationModel windSimModel = new WindSimulationModel(bldgs, terrain, simBox);
 
             DA.SetData(0, windSimModel);
+            //DA.SetData(1, simBox);
 
         }
 

@@ -55,7 +55,7 @@ namespace Formicae.Components
             var ResultMesh = simbox.LiftedResultMesh;
             DA.SetDataList(0, simPts);
             DA.SetData(1, ResultMesh);
-            //DA.SetData(2, simbox);
+            DA.SetData(2, simbox);
 
         }
 

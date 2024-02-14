@@ -46,8 +46,12 @@ namespace Formicae.Components
             DA.GetData(0,ref windSimModel);
 
             HeightMap heightMap = new HeightMap(windSimModel);
-            var mappedWithoutBuildings = HeightMap.MapToDomain(heightMap.HeightMapWithoutBuildings(),0,255);
-            var mappedWithBuildings = HeightMap.MapToDomain(heightMap.HeightMapWithBuildings(), 0, 255);
+
+            //var mappedWithoutBuildings = HeightMap.MapToDomain(heightMap.HeightMapWithoutBuildings(), 0, 255);
+            //var mappedWithBuildings = HeightMap.MapToDomain(heightMap.HeightMapWithBuildings(), 0, 255);
+
+            var mappedWithoutBuildings = heightMap.HeightMapWithoutBuildings();
+            var mappedWithBuildings = heightMap.HeightMapWithBuildings();
 
             //DA.SetDataList(0,heightMap.HeightMapWithoutBuildings());
             //DA.SetDataList(1,heightMap.HeightMapWithBuildings());
