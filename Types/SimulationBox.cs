@@ -52,6 +52,18 @@ namespace Formicae.Types
 
         public double SimulationGridResolution = 1;
 
+        public double BoxHeight => GetBoxHeight();
+
+        /// <summary>
+        /// Points that can be used to calculate height always heigher than the Simulation Box Brep
+        /// </summary>
+        public List<Point3d> LiftedPts => GetSimulationPointsUp();
+
+        /// <summary>
+        /// Result mesh that is heigher than the Simulation Box, Can be used to drape
+        /// </summary>
+        public Mesh LiftedResultMesh => GetResultMeshUp();  
+
 
         #endregion
 
@@ -324,6 +336,38 @@ namespace Formicae.Types
             var plane = GetGridPlaneForBotLeftCorner();
             plane.Origin = GetTopCenterPoint();
             return plane;
+        }
+
+        public double GetBoxHeight()
+        {
+            // return this.BoundingBox.GetCorners()[7].Z - this.BoundingBox.GetCorners()[0].Z;
+            var Brepvertices = this.BoundingBoxBrep.Vertices;
+            var LowestZ = Brepvertices.Select(a => a.Location).Select(b => b.Z).Min();
+            var MaxZ = Brepvertices.Select(a => a.Location).Select(b => b.Z).Max();
+            return MaxZ - LowestZ;
+        }
+
+
+        public List<Point3d> GetSimulationPointsUp()
+        {
+            var lowSimPts = GetSimulationPoints();
+            List<Point3d> LiftedSimPts = new List<Point3d>();
+            foreach (var simPt in lowSimPts)
+            {
+                LiftedSimPts.Add(simPt + Vector3d.ZAxis * this.BoxHeight * 1.1);
+            }
+            return LiftedSimPts;
+        }
+
+        /// <summary>
+        /// Put the result mesh heigher than the Simulation Box 
+        /// </summary>
+        /// <returns></returns>
+        public Mesh GetResultMeshUp() 
+        {
+            Mesh mesh = GetResultMeshGrid();
+            mesh.Translate(Vector3d.ZAxis * this.BoxHeight * 1.1);
+            return mesh;
         }
 
         #endregion
