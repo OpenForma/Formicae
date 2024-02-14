@@ -10,6 +10,9 @@ using Grasshopper.Kernel.Types;
 using GH_IO.Serialization;
 using Rhino;
 using System.Runtime.InteropServices.WindowsRuntime;
+using Rhino.Geometry.Intersect;
+using System.Drawing.Printing;
+using System.Security.Policy;
 
 
 namespace Formicae.Helpers
@@ -135,6 +138,30 @@ namespace Formicae.Helpers
             }
 
             return pts;
+        }
+
+        public static List<Point3d> ProjectPointsDownardOnMesh(IEnumerable<Point3d> pts, Mesh mesh)
+        {
+            Mesh[] meshArray = new Mesh[1];
+            meshArray[0] = mesh;
+            var projectedPts = Intersection.ProjectPointsToMeshes(meshArray, pts, Vector3d.ZAxis * -1, RhinoDoc.ActiveDoc.ModelAbsoluteTolerance).ToList();
+            return projectedPts;
+        }
+
+        /// <summary>
+        /// Drapes a mesh onto anthor assuming its higher
+        /// </summary>
+        /// <param name="MeshToDrape"></param>
+        /// <param name="TargetMesh"></param>
+        /// <returns></returns>
+        public static Mesh DrapeMesh(Mesh MeshToDrape, Mesh TargetMesh)
+        {
+            var pointsToProject =  MeshToDrape.Vertices.ToPoint3dArray();
+            var projectdPts = ProjectPointsDownardOnMesh(pointsToProject, TargetMesh);
+            Mesh drappedMesh = new Mesh();
+            drappedMesh.Vertices.AddVertices(projectdPts);
+            drappedMesh.Faces.AddFaces(MeshToDrape.Faces);
+            return drappedMesh;
         }
     }
 }
