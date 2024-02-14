@@ -122,7 +122,7 @@ namespace Formicae.Helpers
 
                 //Create plane in Y direction
                 Plane offsetedPlane = OriginPlane;
-                offsetedPlane.Translate(OriginPlane.YAxis * -i);
+                offsetedPlane.Translate(OriginPlane.YAxis * -i * gridResolution);
                 Point3d pointToOffset = offsetedPlane.Origin - OriginPlane.YAxis * gridResolution / 2;
                 //Create plane in Y direction
                 //Point3d pointToOffset = OriginPlane.Origin - (OriginPlane.YAxis) * gridResolution / 2*i;
