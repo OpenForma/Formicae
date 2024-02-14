@@ -62,12 +62,17 @@ namespace Formicae.Types
         /// <summary>
         /// Result mesh that is heigher than the Simulation Box, Can be used to drape
         /// </summary>
-        public Mesh LiftedResultMesh => GetResultMeshUp();  
+        public Mesh LiftedResultMesh => GetResultMeshUp();
 
 
         #endregion
 
         #region constructors 
+
+        public SimulationBox()
+        {
+            
+        }
 
         /// <summary>
         /// Create a simulation bounding box based on BB.

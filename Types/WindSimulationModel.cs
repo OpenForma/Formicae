@@ -21,7 +21,7 @@ namespace Formicae.Types
 
         public Mesh DrapedResultMesh => GetResultMeshDraped();
 
-        WindSimulationModel(Buildings blgs , Terrain terrain, SimulationBox simBox) 
+       public WindSimulationModel(Buildings blgs , Terrain terrain, SimulationBox simBox) 
         {
             this.Buildings = blgs;
             this.Terrain = terrain;
