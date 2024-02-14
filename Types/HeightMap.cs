@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Rhino.Geometry.Intersect;
 using Formicae.Helpers;
+using System.Diagnostics;
 
 namespace Formicae.Types
 {
@@ -47,12 +48,19 @@ namespace Formicae.Types
         {
             List<double> mappedValues = new List<double>();
             double range = domainMax - domainMin;
-
+           
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
             foreach (var value in values)
             {
+
                 double mappedValue = ((value - values.Min()) / (values.Max() - values.Min())) * range + domainMin;
                 mappedValues.Add(mappedValue);
             }
+
+            stopwatch.Stop();
+            var profileSpan = stopwatch.Elapsed;
+            Rhino.RhinoApp.WriteLine(profileSpan.ToString());
 
             return mappedValues;
         }
