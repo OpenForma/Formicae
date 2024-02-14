@@ -10,7 +10,7 @@ namespace Formicae.Types
 {
     public class WindSimulationModel
     {
-        WindSimulationModel() { }
+        public  WindSimulationModel() { }
         
         public Buildings Buildings { get; set; } 
         public Terrain Terrain { get; set; }
