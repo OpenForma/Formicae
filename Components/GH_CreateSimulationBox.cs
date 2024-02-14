@@ -48,9 +48,11 @@ namespace Formicae.Components
 
             SimulationBox simbox = new SimulationBox(box);
             //var simMesh = simbox.GetSimulationMesh();
-            var simPts = simbox.GetSimulationPoints();
-            var ResultMesh = simbox.GetResultMeshGrid();
+            //var simPts = simbox.GetSimulationPoints();
+            //var ResultMesh = simbox.GetResultMeshGrid();
 
+            var simPts = simbox.LiftedPts;
+            var ResultMesh = simbox.LiftedResultMesh;
             DA.SetDataList(0, simPts);
             DA.SetData(1, ResultMesh);
             DA.SetData(2, simbox);
