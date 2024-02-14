@@ -1,4 +1,4 @@
-# Fomicae: Bridging Forma and Rhino with Wind Analysis
+# Fomicae: Bridging Forma and Rhino
 
 Fomicae is a project born out of the Forma Hackathon, hosted by Autodesk's Forma team at Autodesk's Oslo office on February 13-14, 2024. This project establishes a connection between Forma and Rhino, focusing on the integration of wind prediction analyses into the design process directly to Rhino.
 
