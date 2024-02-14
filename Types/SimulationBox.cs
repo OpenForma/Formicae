@@ -46,13 +46,17 @@ namespace Formicae.Types
 
         public BoundingBox ClippingBox => BoundingBoxBrep?.GetBoundingBox(false) ?? BoundingBox.Unset;
 
-        public double ResultGridDistance = 200;
+        public double ResultMeshFaceCount = 200; // 300 in meters
 
-        public double SimulationGridDistance = 500;
+        public double SimulationGridFaceCount = 500; // 750 in meters
 
-        public double SimulationGridResolution = 1;
+        public double SimulationGridResolution = 1.5;
 
         public double BoxHeight => GetBoxHeight();
+
+        public double SimulationGridDistance = 750;
+
+        public double ResultGridDistance = 300;
 
         /// <summary>
         /// Points that can be used to calculate height always heigher than the Simulation Box Brep
@@ -259,9 +263,9 @@ namespace Formicae.Types
         public Plane GetResultPlane()
         {
             var botleftcorner = GetGridPlaneForBotLeftCorner();
-            double leftoverspace = (this.SimulationGridDistance - this.ResultGridDistance) / 2;
-            botleftcorner.Translate(botleftcorner.XAxis * leftoverspace);
-            botleftcorner.Translate(botleftcorner.YAxis * leftoverspace);
+           //double leftoverspace = (this.SimulationGridFaceCount - this.ResultGridDistance) / 2;
+            botleftcorner.Translate(botleftcorner.XAxis * 225);
+            botleftcorner.Translate(botleftcorner.YAxis * 525);
             return botleftcorner; 
         }
 
@@ -276,13 +280,24 @@ namespace Formicae.Types
             return botleftcorner;
         }
 
+        ///// <summary>
+        ///// Gets the grid for the result to be colored
+        ///// </summary>
+        ///// <returns></returns>
+        //public Mesh GetResultMeshGrid () 
+        //{
+        //   return MeshHelper.GetGridMeshForResult(GetResultPlane(), this.ResultGridDistance,1.5);
+        //}
+
+
+
         /// <summary>
         /// Gets the grid for the result to be colored
         /// </summary>
         /// <returns></returns>
-        public Mesh GetResultMeshGrid () 
+        public Mesh GetResultMeshGrid()
         {
-           return MeshHelper.GetGridMeshForResult(GetResultPlane(), this.ResultGridDistance);
+            return MeshHelper.GetResultMeshRowMajor(GetResultPlane(), this.ResultMeshFaceCount, this.SimulationGridResolution); //Same resolution
         }
 
         [Obsolete]
@@ -292,14 +307,18 @@ namespace Formicae.Types
         /// <returns></returns>
         public Mesh GetSimulationMesh()
         {
-            return MeshHelper.GetGridMeshForSimulation(GetSimulationPlane(), this.SimulationGridDistance);
+            return MeshHelper.GetGridMeshForSimulation(GetSimulationPlane(), this.SimulationGridFaceCount);
         }
 
+
+      
 
         public List<Point3d> GetSimulationPoints()
         {
-           return MeshHelper.GetGridPointsForSimulation(GetSimulationPlane(),this.SimulationGridDistance, this.SimulationGridResolution);
+           return MeshHelper.GetGridPointsForSimulation(GetSimulationPlane(),this.SimulationGridFaceCount, this.SimulationGridResolution);
         }
+
+
 
         #endregion
 
@@ -307,8 +326,8 @@ namespace Formicae.Types
 
         public override string ToString()
         {
-            return $"A {TypeName} with a simulation grid of size {this.SimulationGridDistance} * {this.SimulationGridDistance} of resolution {this.SimulationGridResolution} (Distance between points)" +
-                $"\nAt the center of which an interest area grid (resultGrid) of size {this.ResultGridDistance} * {this.ResultGridDistance} of resolution {this.SimulationGridResolution} ";
+            return $"A {TypeName} with a simulation grid of size {this.SimulationGridFaceCount} * {this.SimulationGridFaceCount} of resolution {this.SimulationGridResolution} (Distance between points)" +
+                $"\nAt the center of which an interest area grid (resultGrid) of size {this.ResultMeshFaceCount} * {this.ResultMeshFaceCount} of resolution {this.SimulationGridResolution} ";
         }
 
         /// <summary>
@@ -328,7 +347,7 @@ namespace Formicae.Types
         {
             var plane = GetGridPlaneForBotLeftCorner();
             plane.Origin = GetTopCenterPoint();
-            Rectangle3d rect = new Rectangle3d(plane, this.ResultGridDistance, this.ResultGridDistance);
+            Rectangle3d rect = new Rectangle3d(plane, this.ResultMeshFaceCount, this.ResultMeshFaceCount);
             return rect.ToPolyline();
         }
 
