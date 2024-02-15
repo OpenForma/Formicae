@@ -21,7 +21,7 @@ namespace Formicae.Components
 
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-            pManager.AddBrepParameter("Box", "box", "500X500 box to make the simulaiton Grids", GH_ParamAccess.item);
+            pManager.AddBrepParameter("Box", "box", "750X750 box to make the simulaiton Grids", GH_ParamAccess.item);
             pManager.AddMeshParameter("TerrainMesh", "TM", "Mesh used to represent the terrain", GH_ParamAccess.item);
             pManager.AddBrepParameter("Buildings Breps", "BB", "Buildings as Breps (Kepp at volumetric level and simple boxes)", GH_ParamAccess.list);
         }

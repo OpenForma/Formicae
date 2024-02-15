@@ -28,7 +28,7 @@ namespace Formicae.Types
         public Brep BoundingBoxBrep { get; set; }
 
 
-        public bool IsValid => this.IsABox();
+        public bool IsValid => this.IsABox() && isBoxCorrectSize();
 
         public string IsValidWhyNot => throw new NotImplementedException();
 
@@ -36,7 +36,7 @@ namespace Formicae.Types
 
         public string TypeDescription => "A bounding box used to extract the simulation grid for wind analysis from Forma.";
 
-        public BoundingBox Boundingbox => throw new NotImplementedException();
+        public BoundingBox Boundingbox => BoundingBoxBrep?.GetBoundingBox(false) ?? BoundingBox.Unset;
 
         public Guid ReferenceID { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
@@ -48,15 +48,25 @@ namespace Formicae.Types
 
         public double ResultMeshFaceCount = 200; // 300 in meters
 
+
         public double SimulationGridFaceCount = 500; // 750 in meters
 
-        public double SimulationGridResolution = 1.5;
+        /// <summary>
+        /// Space between verticies that make up the mesh
+        /// </summary>
+        public double GridResolution = 1.5;
 
         public double BoxHeight => GetBoxHeight();
 
+        /// <summary>
+        /// The total size of the sampling mesh in meters
+        /// </summary>
         public double SimulationGridDistance = 750;
 
-        public double ResultGridDistance = 300;
+        /// <summary>
+        /// The toatl size of the interest area in meters
+        /// </summary>
+        public double InterestAreaGridDistance = 300;
 
         /// <summary>
         /// Points that can be used to calculate height always heigher than the Simulation Box Brep
@@ -184,16 +194,12 @@ namespace Formicae.Types
 
         public void DrawViewportWires(GH_PreviewWireArgs args)
         {
-            args.Pipeline.DrawDottedPolyline(GetResultMeshOutline(), System.Drawing.Color.Magenta,true);
-            args.Pipeline.Draw3dText("Interest Area", System.Drawing.Color.Black, this.GetTopCenterPlane(), 3, "Arial");
-
+            throw new NotImplementedException();
         }
 
         public void DrawViewportMeshes(GH_PreviewMeshArgs args)
         {
-            // throw new NotImplementedException();
-            args.Pipeline.DrawDottedPolyline(GetResultMeshOutline(), System.Drawing.Color.Magenta, true);
-            args.Pipeline.Draw3dText("Interest Area", System.Drawing.Color.Black, this.GetTopCenterPlane(), 3, "Arial");
+            throw new NotImplementedException();
         }
 
         #endregion
@@ -207,6 +213,20 @@ namespace Formicae.Types
         public bool IsABox()
         {
             return this.BoundingBoxBrep.Vertices.Count == 8;
+        }
+
+
+        /// <summary>
+        /// Checks if the simulaiton box has a size of 750
+        /// </summary>
+        /// <returns></returns>
+        public bool isBoxCorrectSize()
+        {
+            var sortedPts = this.BoundingBoxBrep.Vertices.OrderBy(p => p.Location.X).ThenBy(p => p.Location.Y).ThenBy(p => p.Location.Z);
+            var minPt = sortedPts.First();
+            var maxPt = sortedPts.Last();
+            double a = Math.Abs(maxPt.Location.Y - minPt.Location.Y);
+            return a > 749.9 && a < 750.1;
         }
 
 
@@ -297,7 +317,7 @@ namespace Formicae.Types
         /// <returns></returns>
         public Mesh GetResultMeshGrid()
         {
-            return MeshHelper.GetResultMeshRowMajor(GetResultPlane(), this.ResultMeshFaceCount, this.SimulationGridResolution); //Same resolution
+            return MeshHelper.GetResultMeshRowMajor(GetResultPlane(), this.ResultMeshFaceCount, this.GridResolution); //Same resolution
         }
 
         [Obsolete]
@@ -315,7 +335,7 @@ namespace Formicae.Types
 
         public List<Point3d> GetSimulationPoints()
         {
-           return MeshHelper.GetGridPointsForSimulation(GetSimulationPlane(),this.SimulationGridFaceCount, this.SimulationGridResolution);
+           return MeshHelper.GetGridPointsForSimulation(GetSimulationPlane(),this.SimulationGridFaceCount, this.GridResolution);
         }
 
 
@@ -326,8 +346,8 @@ namespace Formicae.Types
 
         public override string ToString()
         {
-            return $"A {TypeName} with a simulation grid of size {this.SimulationGridFaceCount} * {this.SimulationGridFaceCount} of resolution {this.SimulationGridResolution} (Distance between points)" +
-                $"\nAt the center of which an interest area grid (resultGrid) of size {this.ResultMeshFaceCount} * {this.ResultMeshFaceCount} of resolution {this.SimulationGridResolution} ";
+            return $"A {TypeName} with a simulation grid of size {this.SimulationGridFaceCount} * {this.SimulationGridFaceCount} of resolution {this.GridResolution} (Distance between points)" +
+                $"\nAt the center of which an interest area grid (resultGrid) of size {this.ResultMeshFaceCount} * {this.ResultMeshFaceCount} of resolution {this.GridResolution} ";
         }
 
         /// <summary>
