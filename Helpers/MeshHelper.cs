@@ -13,6 +13,7 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using Rhino.Geometry.Intersect;
 using System.Drawing.Printing;
 using System.Security.Policy;
+using System.Collections.Concurrent;
 
 
 namespace Formicae.Helpers
@@ -149,42 +150,54 @@ namespace Formicae.Helpers
         /// <returns></returns>
         public static Mesh GetResultMeshRowMajor(Plane OriginPlane, double GridFaceCount, double gridResolution)
         {
-            Mesh mesh = new Mesh();
-            for (int i = 0; i < GridFaceCount; i++)
-            {
+            ConcurrentBag<Mesh> meshes = new ConcurrentBag<Mesh>();
 
-                //Create plane in Y direction
+            Parallel.For(0, (int)GridFaceCount, i =>
+            {
+                // Create plane in Y direction
                 Plane offsetedPlane = OriginPlane;
                 offsetedPlane.Translate(OriginPlane.YAxis * -i * gridResolution);
                 Mesh OffsetMeshinY = GetPlaneForMeshSimulation(offsetedPlane);
 
-
                 for (int j = 0; j < GridFaceCount; j++)
                 {
-                    //Translate in X direction
+                    // Translate in X direction
                     Mesh tempMesh = OffsetMeshinY.DuplicateMesh();
                     tempMesh.Translate(OriginPlane.XAxis * j * gridResolution);
-                    mesh.Append(tempMesh);  
+                    meshes.Add(tempMesh);
                 }
+            });
+
+            // Create a new mesh to combine all the meshes from the concurrent bag
+            Mesh finalMesh = new Mesh();
+            foreach (var mesh in meshes)
+            {
+                finalMesh.Append(mesh);
             }
 
-            return mesh;
+            return finalMesh;
         }
 
         public static List<Point3d> ProjectPointsDownardOnMesh(IEnumerable<Point3d> pts, Mesh mesh)
         {
-            Mesh[] meshArray = new Mesh[1];
-            meshArray[0] = mesh;
-            var projectedPts = Intersection.ProjectPointsToMeshes(meshArray, pts, Vector3d.ZAxis * -1, RhinoDoc.ActiveDoc.ModelAbsoluteTolerance).ToList();
-            return projectedPts;
+            ConcurrentBag<Point3d> projectedPtsConcurrent = new ConcurrentBag<Point3d>();
+            Mesh[] meshArray = new Mesh[1] { mesh };
+            Vector3d projectionDirection = Vector3d.ZAxis * -1;
+            double tolerance = RhinoDoc.ActiveDoc.ModelAbsoluteTolerance;
+
+            Parallel.ForEach(pts, (pt) =>
+            {
+                var projectedPt = Intersection.ProjectPointsToMeshes(meshArray, new Point3d[] { pt }, projectionDirection, tolerance).FirstOrDefault();
+                if (projectedPt != null)
+                {
+                    projectedPtsConcurrent.Add(projectedPt);
+                }
+            });
+
+            return projectedPtsConcurrent.ToList();
         }
 
-        /// <summary>
-        /// Drapes a mesh onto anthor assuming its higher
-        /// </summary>
-        /// <param name="MeshToDrape"></param>
-        /// <param name="TargetMesh"></param>
-        /// <returns></returns>
+
         public static Mesh DrapeMesh(Mesh MeshToDrape, Mesh TargetMesh)
         {
             var pointsToProject =  MeshToDrape.Vertices.ToPoint3dArray();

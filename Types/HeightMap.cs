@@ -49,8 +49,7 @@ namespace Formicae.Types
             List<double> mappedValues = new List<double>();
             double range = domainMax - domainMin;
            
-            Stopwatch stopwatch = new Stopwatch();
-            stopwatch.Start();
+
             foreach (var value in values)
             {
 
@@ -58,9 +57,7 @@ namespace Formicae.Types
                 mappedValues.Add(mappedValue);
             }
 
-            stopwatch.Stop();
-            var profileSpan = stopwatch.Elapsed;
-            Rhino.RhinoApp.WriteLine(profileSpan.ToString());
+
 
             return mappedValues;
         }
