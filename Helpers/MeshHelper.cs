@@ -21,15 +21,14 @@ namespace Formicae.Helpers
     {
 
         /// <summary>
-        /// Creates a single face with squared offset (read vertically) 
+        /// Creates a single face squared Mesh
+        /// 
         /// </summary>
-        /// <param name="plane">Bot left</param>
-        /// <param name="offset"></param>
+        /// <param name="plane">the plane is in the bot left corner of the mesh</param>
+        /// <param name="offset">Default value is 1</param>
         /// <returns></returns>
-        public static Mesh GetSingleMeshForResult(Plane plane)
+        public static Mesh CreateSingleFaceMesh(Plane plane, double offset = 1)
         {
-            // 1 meter
-            double offset = 1;
             Mesh m = new Mesh();
             m.Vertices.Add(plane.Origin);
             m.Vertices.Add(plane.Origin + plane.YAxis * offset);
@@ -52,7 +51,7 @@ namespace Formicae.Helpers
                 //Create plane in x direction
                 Plane offsetedPlane = originPlane;
                 offsetedPlane.Translate(originPlane.XAxis * i);
-                Mesh OffsetMeshinX = GetSingleMeshForResult(offsetedPlane);
+                Mesh OffsetMeshinX = CreateSingleFaceMesh(offsetedPlane);
 
                 for (int j = 0; j < gridTotalDistance; j++)
                 {
