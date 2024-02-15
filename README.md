@@ -2,6 +2,7 @@
 
 Formicae is a project born out of the Forma Hackathon, hosted by Autodesk's Forma team at Autodesk's Oslo office on February 13-14, 2024. This project establishes a connection between Forma and Rhino, focusing on the integration of wind prediction analyses into the design process directly to Rhino.
 
+![DALL·E 2024-02-14 14 27 23 - An origami-style ant face, intricately folded from paper, showcased under good lighting conditions  The colors of the paper are warm, invoking a cozy  copy](https://github.com/OpenForma/Formicae/assets/101568776/38cd0955-e2b8-48f0-b6cc-a0da8b116220)
 
 ## Features
 
