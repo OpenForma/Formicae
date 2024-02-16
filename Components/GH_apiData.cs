@@ -5,6 +5,7 @@ using Formicae.Types;
 using Grasshopper.Kernel;
 using Rhino.Geometry;
 using System.Drawing;
+using Formicae.api;
 namespace Formicae.Components
 {
     public class GH_apiData : GH_Component
@@ -28,13 +29,7 @@ namespace Formicae.Components
 
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
-
-
-            pManager.AddIntegerParameter("apiBuilding", "apiBuilding", "apiBuilding", GH_ParamAccess.list);
-            pManager.AddIntegerParameter("apiTerrain", "apiTerrain", "apiTerrain", GH_ParamAccess.list);
-            pManager.AddNumberParameter("apiMin", "apiMin", "apiMin", GH_ParamAccess.item);
-            pManager.AddNumberParameter("apiMax", "apiMax", "apiMax", GH_ParamAccess.item);
-
+            pManager.AddTextParameter("heightMapsObject", "HMO", "heightMapsObject that can be sent directly to forma", GH_ParamAccess.item);
         }
 
         protected override void SolveInstance(IGH_DataAccess DA)
@@ -90,15 +85,12 @@ namespace Formicae.Components
             }
 
             // Convert the array to a list if a List<double> is specifically needed
-            List<int> apiBuilding = new List<int>(apiBuildingParallel);
-            List<int> apiTerrain = new List<int>(apiTerrainParallel);
+            List<int> apiBuildingandTerrainHeightMap = new List<int>(apiBuildingParallel);
+            List<int> apiTerrainOnlyHeightMap = new List<int>(apiTerrainParallel);
 
 
-            DA.SetDataList(0, apiBuilding);
-            DA.SetDataList(1, apiTerrain);
-            DA.SetData(2, apiMin);
-            DA.SetData(3, apiMax);
-
+            HeightMapsObject heightMapsObject = new HeightMapsObject(apiMin, apiMax, apiTerrainOnlyHeightMap, apiBuildingandTerrainHeightMap);
+            DA.SetData(0, heightMapsObject.GetJsonString());
 
         }
 
