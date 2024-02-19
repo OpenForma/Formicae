@@ -4,7 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Rhino.Geometry;
-using Grasshopper;
+using Rhino.DocObjects;
+
 using Grasshopper.Kernel;
 using Grasshopper.Kernel.Types;
 using GH_IO.Serialization;
@@ -18,194 +19,134 @@ using System.Collections.Concurrent;
 
 namespace Formicae.Helpers
 {
-    public static class MeshHelper
+    public class MeshHelper
     {
 
-        /// <summary>
-        /// Creates a single face with squared offset (read vertically) 
-        /// </summary>
-        /// <param name="plane">Bot left</param>
-        /// <param name="offset"></param>
-        /// <returns></returns>
-        public static Mesh GetSingleMeshForResult(Plane plane)
+        public static Rhino.Geometry.Mesh Remesh(IGH_GeometricGoo goo)
         {
-            // 1 meter
-            double offset = 1;
-            Mesh m = new Mesh();
-            m.Vertices.Add(plane.Origin);
-            m.Vertices.Add(plane.Origin + plane.YAxis * offset);
-            m.Vertices.Add(plane.Origin + plane.YAxis * offset + plane.XAxis * offset);
-            m.Vertices.Add(plane.Origin + plane.XAxis * offset);
-            m.Faces.AddFace(0, 1, 2, 3);
-            return m;
+            Guid id = goo.ReferenceID;
+            var rhinoObj = new RhinoObject[] { RhinoDoc.ActiveDoc.Objects.Find(id) };
+            if (rhinoObj == null) return null;
+
+            ObjRef[] getMesh = Rhino.DocObjects.RhinoObject.GetRenderMeshesWithUpdatedTCs(rhinoObj, false, false, false, false); //hidden objects won't be ignored
+            if (getMesh.Length == 0) return null;
+
+            return getMesh[0].Mesh();
         }
 
-        /// <summary>
-        /// Create a mesh grid (Read vertically) 
-        /// </summary>
-        /// <param name="originPlane">Result Plane</param>
-        /// <param name="gridTotalDistance"> 200 X 200 300 X 300 Grid etc.. </param>
-        public static Mesh GetGridMeshForResult(Plane originPlane, double gridTotalDistance , double gridresolution)
+        public static Rectangle3d GetBase(Rhino.Geometry.Mesh mesh)
         {
-            Mesh resultGrid = new Mesh();
-            for (int i = 0; i < gridTotalDistance; i++)
+            BoundingBox box = mesh.GetBoundingBox(false);
+            
+            double zOffset = 100; 
+            Point3d center = new Point3d((box.Min.X + box.Max.X) / 2, (box.Min.Y + box.Max.Y) / 2, box.Max.Z + zOffset);
+            double length = 500; 
+            double width = 500; 
+            Point3d rectStart = new Point3d(center.X - length / 2, center.Y - width / 2, center.Z);
+            Point3d rectEnd = new Point3d(center.X + length / 2, center.Y + width / 2, center.Z);
+            Rectangle3d rect = new Rectangle3d(new Plane(center, Vector3d.ZAxis), rectStart, rectEnd);
+
+            return rect;
+        }
+
+        public static Point3d[] GetPoints(Rectangle3d rect)
+        {
+            int divisions = (int)Math.Sqrt(250000) - 1; 
+            double width = rect.Width;
+            double height = rect.Height;
+            double spacingX = width / divisions;
+            double spacingY = height / divisions;
+
+            int arrayLength = (divisions + 1) * (divisions + 1);
+            Point3d[] points = new Point3d[arrayLength];
+            for (int i = 0; i <= divisions; i++)
             {
-                //Create plane in x direction
-                Plane offsetedPlane = originPlane;
-                offsetedPlane.Translate(originPlane.XAxis * i);
-                Mesh OffsetMeshinX = GetSingleMeshForResult(offsetedPlane);
-
-                for (int j = 0; j < gridTotalDistance; j++)
+                for (int j = 0; j <= divisions; j++)
                 {
-                    //Translate in y direction
-                    Mesh tempMesh = OffsetMeshinX.DuplicateMesh();
-                    tempMesh.Translate(originPlane.YAxis * j);
-                    resultGrid.Append(tempMesh);
-                }
-            }
-            return resultGrid;
-        }
 
-        /// <summary>
-        /// Create a mesh grid (Read vertically) 
-        /// </summary>
-        /// <param name="plane">Top left corner</param>
-        /// <returns></returns>
-        public static Mesh GetPlaneForMeshSimulation(Plane plane) 
-        {  
-            double offset = 1.5;
-            Mesh m = new Mesh();
-            m.Vertices.Add(plane.Origin);
-            m.Vertices.Add(plane.Origin - plane.YAxis * offset);
-            m.Vertices.Add(plane.Origin - (plane.YAxis * offset) + (plane.XAxis * offset));
-            m.Vertices.Add(plane.Origin + plane.XAxis * offset);
-            m.Faces.AddFace(0, 1, 2, 3);
-            return m;
-        }
-
-        [Obsolete]
-        public static Mesh GetGridMeshForSimulation(Plane OriginPlane, double GridtTotalDistance)
-        {
-            //Too slow 
-            Mesh resultGrid = new Mesh();
-
-            for (int i = 0; i < GridtTotalDistance; i++)
-            {
-                //Create plane in Y direction
-                Plane offsetedPlane = OriginPlane;
-                offsetedPlane.Translate(OriginPlane.XAxis * i);
-                Mesh OffsetMeshinY = GetPlaneForMeshSimulation(offsetedPlane);
-
-                for (int j = 0; j < GridtTotalDistance; j++)
-                {
-                    //Translate in X direction
-                    Mesh tempMesh = OffsetMeshinY.DuplicateMesh();
-                    tempMesh.Translate(OriginPlane.XAxis * j);
-                    resultGrid.Append(tempMesh);
-                }
-            }
-            return resultGrid; 
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="OriginPlane"></param>
-        /// <param name="GridtTotalDistance"></param>
-        /// <param name="gridResolution"></param>
-        /// <returns></returns>
-        public static List<Point3d> GetGridPointsForSimulation(Plane OriginPlane, double GridtTotalDistance , double gridResolution)
-        {
-            var pts = new List<Point3d>();
-
-            for (int i = 0; i < GridtTotalDistance; i++)
-            {
-
-                //Create plane in Y direction
-                Plane offsetedPlane = OriginPlane;
-                offsetedPlane.Translate(OriginPlane.YAxis * -i * gridResolution);
-                Point3d pointToOffset = offsetedPlane.Origin - OriginPlane.YAxis * gridResolution / 2;
-                //Create plane in Y direction
-                //Point3d pointToOffset = OriginPlane.Origin - (OriginPlane.YAxis) * gridResolution / 2*i;
-
-                for (int j = 0; j < GridtTotalDistance; j++)
-                {
-                    //Translate in X direction
-                    Point3d tempPt = new Point3d(pointToOffset) + (OriginPlane.XAxis) * gridResolution / 2; // move the point to the right 
-                    tempPt = tempPt + OriginPlane.XAxis * gridResolution * j; // move the point with the array 
-                    //Point3d tempPt = new Point3d(pointToOffset) + OriginPlane.XAxis * gridResolution * j ;
-                    pts.Add(tempPt);
+                    double x = rect.Corner(0).X + (j * spacingX);
+                    double y = rect.Corner(0).Y + (i * spacingY);
+                    Point3d pt = new Point3d(x, y, rect.Corner(0).Z);
+                    int index = (i * (divisions + 1)) + j;
+                    points[index] = pt;
                 }
             }
 
-            return pts;
+            return points;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="OriginPlane"></param>
-        /// <param name="GridtTotalDistance"></param>
-        /// <param name="gridResolution"></param>
-        /// <returns></returns>
-        public static Mesh GetResultMeshRowMajor(Plane OriginPlane, double GridFaceCount, double gridResolution)
+
+        public static Point3d[] GetPointsAnalysis(Rectangle3d rect)
         {
-            ConcurrentBag<Mesh> meshes = new ConcurrentBag<Mesh>();
+       
+            Point3d center = new Point3d(
+                (rect.Corner(0).X + rect.Corner(2).X) / 2,
+                (rect.Corner(0).Y + rect.Corner(2).Y) / 2,
+                rect.Corner(0).Z); 
 
-            Parallel.For(0, (int)GridFaceCount, i =>
+            double desiredLength = 200; 
+            double desiredWidth = 200;
+
+            Point3d newRectStart = new Point3d(center.X - desiredLength / 2, center.Y - desiredWidth / 2, center.Z);
+            Point3d newRectEnd = new Point3d(center.X + desiredLength / 2, center.Y + desiredWidth / 2, center.Z);
+            Rectangle3d newRect = new Rectangle3d(new Plane(center, Vector3d.ZAxis), newRectStart, newRectEnd);
+            int divisions = (int)Math.Sqrt(40000); 
+            double width = newRect.Width;
+            double height = newRect.Height;
+            double spacingX = width / divisions;
+            double spacingY = height / divisions;
+
+            Point3d[] points = new Point3d[(divisions + 1) * (divisions + 1)]; // Adjust for one extra in each dimension
+
+            for (int i = 0; i <= divisions; i++)
             {
-                // Create plane in Y direction
-                Plane offsetedPlane = OriginPlane;
-                offsetedPlane.Translate(OriginPlane.YAxis * -i * gridResolution);
-                Mesh OffsetMeshinY = GetPlaneForMeshSimulation(offsetedPlane);
-
-                for (int j = 0; j < GridFaceCount; j++)
+                for (int j = 0; j <= divisions; j++)
                 {
-                    // Translate in X direction
-                    Mesh tempMesh = OffsetMeshinY.DuplicateMesh();
-                    tempMesh.Translate(OriginPlane.XAxis * j * gridResolution);
-                    meshes.Add(tempMesh);
+                    double x = newRect.Corner(0).X + (j * spacingX);
+                    double y = newRect.Corner(0).Y + (i * spacingY);
+                    points[i * (divisions + 1) + j] = new Point3d(x, y, newRect.Corner(0).Z); // Assuming flat Z
                 }
-            });
-
-            // Create a new mesh to combine all the meshes from the concurrent bag
-            Mesh finalMesh = new Mesh();
-            foreach (var mesh in meshes)
-            {
-                finalMesh.Append(mesh);
             }
 
-            return finalMesh;
+            return points;
         }
 
-        public static List<Point3d> ProjectPointsDownardOnMesh(IEnumerable<Point3d> pts, Mesh mesh)
-        {
-            ConcurrentBag<Point3d> projectedPtsConcurrent = new ConcurrentBag<Point3d>();
-            Mesh[] meshArray = new Mesh[1] { mesh };
-            Vector3d projectionDirection = Vector3d.ZAxis * -1;
-            double tolerance = RhinoDoc.ActiveDoc.ModelAbsoluteTolerance;
 
-            Parallel.ForEach(pts, (pt) =>
+
+
+        public static Mesh CreateMeshFromGridPoints(Point3d[] points, int gridWidth, int gridHeight)
+        {
+            if (points == null || points.Length == 0)
+                throw new ArgumentException("Points array is null or empty", nameof(points));
+            if (points.Length != gridWidth * gridHeight)
+                throw new ArgumentException("Points array size does not match grid dimensions", nameof(points));
+
+            Mesh mesh = new Mesh();
+            foreach (Point3d point in points)
             {
-                var projectedPt = Intersection.ProjectPointsToMeshes(meshArray, new Point3d[] { pt }, projectionDirection, tolerance).FirstOrDefault();
-                if (projectedPt != null)
+                mesh.Vertices.Add(point);
+            }
+
+            // Create faces
+            for (int y = 0; y < gridHeight - 1; y++)
+            {
+                for (int x = 0; x < gridWidth - 1; x++)
                 {
-                    projectedPtsConcurrent.Add(projectedPt);
+                    int lowerLeft = y * gridWidth + x;
+                    int lowerRight = y * gridWidth + x + 1;
+                    int upperLeft = (y + 1) * gridWidth + x;
+                    int upperRight = (y + 1) * gridWidth + x + 1;
+
+                    mesh.Faces.AddFace(lowerLeft, lowerRight, upperRight, upperLeft);
                 }
-            });
+            }
 
-            return projectedPtsConcurrent.ToList();
+            mesh.Normals.ComputeNormals();
+            mesh.Compact(); 
+
+            return mesh;
         }
 
 
-        public static Mesh DrapeMesh(Mesh MeshToDrape, Mesh TargetMesh)
-        {
-            var pointsToProject =  MeshToDrape.Vertices.ToPoint3dArray();
-            var projectdPts = ProjectPointsDownardOnMesh(pointsToProject, TargetMesh);
-            Mesh drappedMesh = new Mesh();
-            drappedMesh.Vertices.AddVertices(projectdPts);
-            drappedMesh.Faces.AddFaces(MeshToDrape.Faces);
-            return drappedMesh;
-        }
     }
 }
