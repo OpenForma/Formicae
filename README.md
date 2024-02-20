@@ -8,7 +8,7 @@ Formicae is a project born out of the Forma Hackathon, hosted by Autodesk's Form
 
 - **3-Legged Authentication**: Ensures secure access and data exchange between Forma and Rhino, leveraging robust authentication protocols to protect your projects.
 - **Streamlined Connectivity**: Facilitates a direct and efficient link from Rhino to Forma and vice versa, simplifying the workflow for architects and designers.
-- **Wind Prediction Analysis**: Incorporates advanced wind analysis directly into your design workflow, enabling data-driven decision-making for architectural projects.
+- **Wind Prediction Analysis**: Incorporates advanced wind analysis directly into your design workflow, enabling data-driven decision-making for architectural projects. Note that we are still calibrating the results one gets in Rhino with what Forma gives. The results per such are still not ready. 
 
 
 
