@@ -34,14 +34,21 @@ namespace Formicae.Helpers
             return getMesh[0].Mesh();
         }
 
+        /// <summary>
+        /// Get the rectangle to generate the grids 
+        /// The rectangle is 750 X 750 
+        /// https://app.autodeskforma.com/forma-embedded-view-sdk/docs/types/predictive_analysis.HeightMaps.html
+        /// </summary>
+        /// <param name="mesh"></param>
+        /// <returns></returns>
         public static Rectangle3d GetBase(Rhino.Geometry.Mesh mesh)
         {
             BoundingBox box = mesh.GetBoundingBox(false);
-            
-            double zOffset = 100; 
+
+            double zOffset = 100;
             Point3d center = new Point3d((box.Min.X + box.Max.X) / 2, (box.Min.Y + box.Max.Y) / 2, box.Max.Z + zOffset);
-            double length = 500; 
-            double width = 500; 
+            double length = 750;
+            double width = 750;
             Point3d rectStart = new Point3d(center.X - length / 2, center.Y - width / 2, center.Z);
             Point3d rectEnd = new Point3d(center.X + length / 2, center.Y + width / 2, center.Z);
             Rectangle3d rect = new Rectangle3d(new Plane(center, Vector3d.ZAxis), rectStart, rectEnd);
@@ -49,25 +56,27 @@ namespace Formicae.Helpers
             return rect;
         }
 
+        /// <summary>
+        /// Gets the points for the large grid
+        /// </summary>
+        /// <param name="rect">Base rectangle</param>
+        /// <returns></returns>
         public static Point3d[] GetPoints(Rectangle3d rect)
         {
-            int divisions = (int)Math.Sqrt(250000) - 1; 
-            double width = rect.Width;
-            double height = rect.Height;
-            double spacingX = width / divisions;
-            double spacingY = height / divisions;
+            int divisions = 500;
+            double spacingX = rect.Width / (divisions - 1);
+            double spacingY = rect.Height / (divisions - 1);
 
-            int arrayLength = (divisions + 1) * (divisions + 1);
+            int arrayLength = divisions * divisions;
             Point3d[] points = new Point3d[arrayLength];
-            for (int i = 0; i <= divisions; i++)
+            for (int i = 0; i < divisions; i++)
             {
-                for (int j = 0; j <= divisions; j++)
+                for (int j = 0; j < divisions; j++)
                 {
-
                     double x = rect.Corner(0).X + (j * spacingX);
                     double y = rect.Corner(0).Y + (i * spacingY);
                     Point3d pt = new Point3d(x, y, rect.Corner(0).Z);
-                    int index = (i * (divisions + 1)) + j;
+                    int index = (i * divisions) + j;
                     points[index] = pt;
                 }
             }
@@ -75,43 +84,51 @@ namespace Formicae.Helpers
             return points;
         }
 
-
+        /// <summary>
+        /// Get the analysis points for the interest area
+        /// https://app.autodeskforma.com/forma-embedded-view-sdk/docs/types/predictive_analysis.HeightMaps.html
+        /// </summary>
+        /// <param name="rect"></param>
+        /// <returns></returns>
         public static Point3d[] GetPointsAnalysis(Rectangle3d rect)
         {
-       
             Point3d center = new Point3d(
-                (rect.Corner(0).X + rect.Corner(2).X) / 2,
-                (rect.Corner(0).Y + rect.Corner(2).Y) / 2,
-                rect.Corner(0).Z); 
+              (rect.Corner(0).X + rect.Corner(2).X) / 2,
+              (rect.Corner(0).Y + rect.Corner(2).Y) / 2,
+              rect.Corner(0).Z);
 
-            double desiredLength = 200; 
-            double desiredWidth = 200;
+            double desiredLength = 300; // Total length in x
+            double desiredWidth = 300; // Total length in y
+            int desiredPointsX = 201; // Desired number of points in x
+            int desiredPointsY = 201; // Desired number of points in y
 
-            Point3d newRectStart = new Point3d(center.X - desiredLength / 2, center.Y - desiredWidth / 2, center.Z);
-            Point3d newRectEnd = new Point3d(center.X + desiredLength / 2, center.Y + desiredWidth / 2, center.Z);
+            double spacingX = desiredLength / (desiredPointsX - 1); // Spacing between points in x
+            double spacingY = desiredWidth / (desiredPointsY - 1); // Spacing between points in y
+
+            int divisionsX = desiredPointsX; // Number of divisions in x
+            int divisionsY = desiredPointsY; // Number of divisions in y
+
+            double actualLength = spacingX * (divisionsX - 1); // Actual total length in x
+            double actualWidth = spacingY * (divisionsY - 1); // Actual total length in y
+
+            Point3d newRectStart = new Point3d(center.X - actualLength / 2, center.Y - actualWidth / 2, center.Z);
+            Point3d newRectEnd = new Point3d(center.X + actualLength / 2, center.Y + actualWidth / 2, center.Z);
             Rectangle3d newRect = new Rectangle3d(new Plane(center, Vector3d.ZAxis), newRectStart, newRectEnd);
-            int divisions = (int)Math.Sqrt(40000); 
-            double width = newRect.Width;
-            double height = newRect.Height;
-            double spacingX = width / divisions;
-            double spacingY = height / divisions;
 
-            Point3d[] points = new Point3d[(divisions + 1) * (divisions + 1)]; // Adjust for one extra in each dimension
+            Point3d[] points = new Point3d[desiredPointsX * desiredPointsY];
 
-            for (int i = 0; i <= divisions; i++)
+            for (int i = 0; i < divisionsY; i++)
             {
-                for (int j = 0; j <= divisions; j++)
+                for (int j = 0; j < divisionsX; j++)
                 {
                     double x = newRect.Corner(0).X + (j * spacingX);
                     double y = newRect.Corner(0).Y + (i * spacingY);
-                    points[i * (divisions + 1) + j] = new Point3d(x, y, newRect.Corner(0).Z); // Assuming flat Z
+                    points[i * divisionsX + j] = new Point3d(x, y, newRect.Corner(0).Z);
                 }
             }
 
             return points;
         }
-
-
 
 
         public static Mesh CreateMeshFromGridPoints(Point3d[] points, int gridWidth, int gridHeight)

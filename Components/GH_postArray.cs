@@ -53,7 +53,7 @@ namespace Formicae.Components
                 {"windRose", windParams},
                 {"type", "comfort"},
                 {"roughness", roughness},
-                {"comfortScale", "lawson_lddc"}
+                {"comfortScale",  "lawson_2001"}
             };
             string bodyJson = JsonConvert.SerializeObject(body); 
             DA.SetData(0, bodyJson);

@@ -40,6 +40,8 @@ namespace Formicae.Components
         {
             pManager.AddTextParameter("Height Dictionary", "HeightDict", "HeightDict", GH_ParamAccess.item);
             pManager.AddMeshParameter("Analysis Mesh", "AnalysisMesh", "AnalysisMesh", GH_ParamAccess.item);
+            pManager.AddGenericParameter("Debug", "Debug", "Debug", GH_ParamAccess.item);
+
         }
 
 
@@ -59,7 +61,9 @@ namespace Formicae.Components
 
             var rayTerrain = HitPointsHeight(gridPoints, terrainToMesh);
             Rhino.Geometry.Mesh ProbMesh = CreateMeshFromGridPoints(HitPoints(analysisPoints, terrainToMesh),201,201);
-      
+            //Rhino.Geometry.Mesh ProbMesh = CreateMeshFromGridPoints(HitPoints(analysisPoints, terrainToMesh), 200, 200);
+
+
             var rayTerrainAndBuilding = HitPointsHeight(gridPoints, terrainAndBuildingsToMesh);
 
             double apiMin = rayTerrainAndBuilding.Min();
@@ -101,6 +105,7 @@ namespace Formicae.Components
 
             DA.SetData(0, jsonString);
             DA.SetData(1, ProbMesh);
+            //DA.SetDataList(2, gridPoints);
 
 
         }
