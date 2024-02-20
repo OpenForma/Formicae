@@ -60,8 +60,8 @@ namespace Formicae.Components
             var analysisPoints = GetPointsAnalysis(rectTerrain);
 
             var rayTerrain = HitPointsHeight(gridPoints, terrainToMesh);
-            //Rhino.Geometry.Mesh ProbMesh = CreateMeshFromGridPoints(HitPoints(analysisPoints, terrainToMesh),201,201);
-            Rhino.Geometry.Mesh ProbMesh = CreateMeshFromGridPoints(HitPoints(analysisPoints, terrainToMesh), 200, 200);
+            Rhino.Geometry.Mesh ProbMesh = CreateMeshFromGridPoints(HitPoints(analysisPoints, terrainToMesh),201,201);
+            //Rhino.Geometry.Mesh ProbMesh = CreateMeshFromGridPoints(HitPoints(analysisPoints, terrainToMesh), 200, 200);
 
 
             var rayTerrainAndBuilding = HitPointsHeight(gridPoints, terrainAndBuildingsToMesh);

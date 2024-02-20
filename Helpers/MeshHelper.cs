@@ -99,8 +99,8 @@ namespace Formicae.Helpers
 
             double desiredLength = 300; // Total length in x
             double desiredWidth = 300; // Total length in y
-            int desiredPointsX = 200; // Desired number of points in x
-            int desiredPointsY = 200; // Desired number of points in y
+            int desiredPointsX = 201; // Desired number of points in x
+            int desiredPointsY = 201; // Desired number of points in y
 
             double spacingX = desiredLength / (desiredPointsX - 1); // Spacing between points in x
             double spacingY = desiredWidth / (desiredPointsY - 1); // Spacing between points in y
@@ -129,8 +129,6 @@ namespace Formicae.Helpers
 
             return points;
         }
-
-
 
 
         public static Mesh CreateMeshFromGridPoints(Point3d[] points, int gridWidth, int gridHeight)
