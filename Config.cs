@@ -6,6 +6,7 @@
         {
             Geometry,
             API,
+            Show,
         }
 
         //Name for the GH tab
@@ -16,6 +17,8 @@
         {
             public static string Geometry { get => $"{(FormicaeSubTab)0}"; }
             public static string API { get => $"{(FormicaeSubTab)1}"; }
+            public static string Show { get => $"{(FormicaeSubTab)2}"; }
+
 
 
         }

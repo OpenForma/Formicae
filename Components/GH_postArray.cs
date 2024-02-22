@@ -25,6 +25,8 @@ namespace Formicae.Components
         {
             pManager.AddTextParameter("HeightArray", "HeightArr", "HeightArr", GH_ParamAccess.item);
             pManager.AddTextParameter("Wind Parameters", "WindPar", "WindPar", GH_ParamAccess.item);
+            pManager.AddTextParameter("WindcomfortClass", "WClass", "WClass", GH_ParamAccess.item);
+
         }
 
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
@@ -39,8 +41,12 @@ namespace Formicae.Components
 
             string heightArrayJson = string.Empty;
             string windParamsJson = string.Empty;
+            string windClass = "lawson_2001";
             if (!DA.GetData(0, ref heightArrayJson)) return;
             if (!DA.GetData(1, ref windParamsJson)) return;
+            if (!DA.GetData(2, ref windClass)) return;
+  
+
 
             var windParams = JsonConvert.DeserializeObject<Dictionary<string, object>>(windParamsJson);
             object roughness = windParams.TryGetValue("roughness", out roughness) ? roughness : 0;
@@ -49,13 +55,13 @@ namespace Formicae.Components
 
             var body = new Dictionary<string, object>
             {
-                {"heightMaps", heightMaps}, 
+                {"heightMaps", heightMaps},
                 {"windRose", windParams},
                 {"type", "comfort"},
                 {"roughness", roughness},
-                {"comfortScale", "lawson_lddc"}
+                {"comfortScale",  windClass}
             };
-            string bodyJson = JsonConvert.SerializeObject(body); 
+            string bodyJson = JsonConvert.SerializeObject(body);
             DA.SetData(0, bodyJson);
         }
 
